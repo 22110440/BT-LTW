@@ -28,7 +28,30 @@ public class UserServiceImpl implements UserService {
         }
         return null;
     }
+    @Override
+    public boolean register(User user) {
+        String sql = "INSERT INTO users (email, username, fullname, password, avatar, role_id, phone, created_date) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, user.getEmail());
+            ps.setString(2, user.getUsername());
+            ps.setString(3, user.getFullName());
+            ps.setString(4, user.getPassword()); // ⚠ nếu dùng hash thì phải mã hoá trước khi lưu
+            ps.setString(5, user.getAvatar());
+            ps.setInt(6, user.getRoleId());
+            ps.setString(7, user.getPhone());
+            ps.setTimestamp(8, new java.sql.Timestamp(user.getCreatedDate().getTime()));
+
+            int rows = ps.executeUpdate();
+            return rows > 0; // ✅ true nếu thêm thành công
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
     @Override
     public User findByUsername(String username) {
         String sql = "SELECT * FROM users WHERE username=?";

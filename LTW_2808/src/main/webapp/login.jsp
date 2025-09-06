@@ -1,41 +1,23 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<!DOCTYPE html>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <title>JSP - Hello World</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Đăng nhập</title>
 </head>
 <body>
 <form action="${pageContext.request.contextPath}/login" method="post">
-    <h2>Tạo tài khoản mới</h2>
-
-    <c:if test="${alert != null}">
-        <h3 class="alert alert-danger">${alert}</h3>
-    </c:if>
-
-    <section>
-        <label class="input login-input">
-            <div class="input-group">
-                <span class="input-group-addon"><i class="fa fa-user"></i></span>
-                <input type="text" placeholder="Tài khoản"
-                       name="username"
-                       class="form-control" required>
-            </div>
-        </label>
-    </section>
-    <section>
-        <label class="input login-input">
-            <div class="input-group">
-                <span class="input-group-addon"><i class="fa fa-lock"></i></span>
-                <input type="password" placeholder="Mật khẩu"
-                       name="password"
-                       class="form-control" required>
-            </div>
-        </label>
-    </section>
-
-    <button type="submit" class="btn btn-primary mt-3">Đăng ký</button>
+    <input type="text" name="username" placeholder="Tên đăng nhập" required />
+    <input type="password" name="password" placeholder="Mật khẩu" required />
+    <label><input type="checkbox" name="remember" /> Ghi nhớ đăng nhập</label>
+    <button type="submit">Đăng nhập</button>
 </form>
+
+<!-- ✅ Chỉ cần link sang trang đăng ký -->
+<p>Bạn chưa có tài khoản?
+    <a href="${pageContext.request.contextPath}/register.jsp">Đăng ký ngay</a>
+</p>
+
+<div style="color:red;">
+    ${alert}
+</div>
 </body>
 </html>
