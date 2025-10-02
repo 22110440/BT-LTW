@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Danh sách sản phẩm</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<h2>Danh sách sản phẩm</h2>
+<ul id="product-list"></ul>
+
+<script>
+  $.ajax({
+    url: "/graphql",
+    method: "POST",
+    contentType: "application/json",
+    data: JSON.stringify({
+      query: "{ products { id title price quantity desc } }"
+    }),
+    success: function(response) {
+      if(response.data && response.data.products) {
+        const products = response.data.products;
+        products.forEach(p => {
+          $("#product-list").append(
+                  `<li>
+                                <b>${p.title}</b> - ${p.price} VND
+                                (SL: ${p.quantity}) <br>
+                                <i>${p.desc || ""}</i>
+                             </li><hr/>`
+          );
+        });
+      } else {
+        $("#product-list").append("<li>Không có sản phẩm nào</li>");
+      }
+    },
+    error: function(err) {
+      console.error("Lỗi khi gọi GraphQL:", err);
+    }
+  });
+</script>
+</body>
+</html>

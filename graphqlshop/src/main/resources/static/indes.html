@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GraphQL Shop - Home</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { 
+            padding: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .card { 
+            margin-bottom: 15px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .card:hover { transform: translateY(-2px); }
+        .hero-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .feature-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .price-badge {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        .loading {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <h1 class="display-4 mb-3">
+            <i class="fas fa-store text-primary"></i> GraphQL Shop
+        </h1>
+        <p class="lead">Modern e-commerce platform powered by GraphQL & Spring Boot 3</p>
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <i class="fas fa-search fa-2x text-primary mb-2"></i>
+                    <h5>Smart Search</h5>
+                    <p class="small">Find products by price range and category</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <i class="fas fa-cogs fa-2x text-success mb-2"></i>
+                    <h5>Full CRUD</h5>
+                    <p class="small">Complete management for products, categories & users</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <i class="fas fa-bolt fa-2x text-warning mb-2"></i>
+                    <h5>Real-time</h5>
+                    <p class="small">AJAX-powered interface with instant updates</p>
+                </div>
+            </div>
+        </div>
+        <div class="mt-4">
+            <a href="/products" class="btn btn-primary btn-lg me-3">
+                <i class="fas fa-tools"></i> Admin Panel
+            </a>
+            <a href="/graphiql" class="btn btn-outline-primary btn-lg" target="_blank">
+                <i class="fas fa-code"></i> GraphiQL Explorer
+            </a>
+        </div>
+    </div>
+
+    <!-- Products by Price Asc -->
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="fas fa-sort-amount-up"></i> Products (Price Low to High)</h3>
+        </div>
+        <div class="card-body">
+            <div id="products-loading" class="loading text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+            <div id="products" class="row"></div>
+        </div>
+    </div>
+
+    <!-- Products by Category -->
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h3 class="mb-0"><i class="fas fa-tags"></i> Products by Category</h3>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-filter"></i></span>
+                        <input type="number" id="catId" class="form-control" placeholder="Enter Category ID" value="1">
+                        <button class="btn btn-success" onclick="loadByCategory()">
+                            <i class="fas fa-search"></i> Filter
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <button class="btn btn-outline-info" onclick="loadCategories()">
+                        <i class="fas fa-list"></i> Show All Categories
+                    </button>
+                </div>
+            </div>
+            <div id="categories-info" class="mb-3"></div>
+            <div id="byCategory-loading" class="loading text-center">
+                <div class="spinner-border text-success" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+            <div id="byCategory" class="row"></div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-box fa-2x mb-2"></i>
+                    <h4 id="total-products">-</h4>
+                    <p>Total Products</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-tags fa-2x mb-2"></i>
+                    <h4 id="total-categories">-</h4>
+                    <p>Total Categories</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-danger text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-2x mb-2"></i>
+                    <h4 id="total-users">-</h4>
+                    <p>Total Users</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const GQL_ENDPOINT = "/graphql";
+
+    async function gql(query, variables = {}) {
+        try {
+            const res = await fetch(GQL_ENDPOINT, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ query, variables })
+            });
+            const result = await res.json();
+            if (result.errors) {
+                console.error("GraphQL errors:", result.errors);
+                throw new Error(result.errors[0].message);
+            }
+            return result;
+        } catch (error) {
+            console.error("GraphQL request failed:", error);
+            throw error;
+        }
+    }
+
+    // Load all products price asc
+    async function loadAsc() {
+        document.getElementById('products-loading').style.display = 'block';
+        try {
+            const query = `
+              query {
+                productsByPriceAsc {
+                  id title price quantity desc
+                  owner { fullname }
+                  categories { name }
+                }
+              }`;
+            const { data } = await gql(query);
+            const wrap = document.getElementById("products");
+            wrap.innerHTML = "";
+            
+            if (!data.productsByPriceAsc || data.productsByPriceAsc.length === 0) {
+                wrap.innerHTML = '<div class="col-12"><div class="alert alert-info">No products found</div></div>';
+                return;
+            }
+            
+            data.productsByPriceAsc.forEach(p => {
+                wrap.innerHTML += `
+                  <div class="col-md-4 col-lg-3 mb-3">
+                    <div class="card h-100">
+                      <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="card-title mb-0">${p.title}</h6>
+                            <span class="badge bg-primary price-badge">$${p.price || 0}</span>
+                        </div>
+                        <p class="card-text small text-muted">${p.desc || 'No description'}</p>
+                        <div class="row text-center small">
+                            <div class="col-6">
+                                <strong>Qty:</strong> ${p.quantity || 0}
+                            </div>
+                            <div class="col-6">
+                                <strong>Owner:</strong> ${p.owner?.fullname || 'N/A'}
+                            </div>
+                        </div>
+                        ${p.categories && p.categories.length > 0 ? `
+                            <div class="mt-2">
+                                ${p.categories.map(cat => `<span class="badge bg-secondary me-1 small">${cat.name}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                      </div>
+                    </div>
+                  </div>`;
+            });
+            
+            // Update statistics
+            document.getElementById('total-products').textContent = data.productsByPriceAsc.length;
+        } catch (error) {
+            document.getElementById("products").innerHTML = 
+                `<div class="col-12"><div class="alert alert-danger">Error loading products: ${error.message}</div></div>`;
+        } finally {
+            document.getElementById('products-loading').style.display = 'none';
+        }
+    }
+
+    // Load products by category
+    async function loadByCategory() {
+        const categoryId = parseInt(document.getElementById("catId").value || "1", 10);
+        document.getElementById('byCategory-loading').style.display = 'block';
+        
+        try {
+            const query = `
+              query($cid: ID!) {
+                productsByCategory(categoryId: $cid) {
+                  id title price quantity desc
+                  owner { fullname }
+                  categories { name }
+                }
+              }`;
+            const { data } = await gql(query, { cid: categoryId });
+            const wrap = document.getElementById("byCategory");
+            wrap.innerHTML = "";
+            
+            if (!data.productsByCategory || data.productsByCategory.length === 0) {
+                wrap.innerHTML = '<div class="col-12"><div class="alert alert-warning">No products found for this category</div></div>';
+                return;
+            }
+            
+            data.productsByCategory.forEach(p => {
+                wrap.innerHTML += `
+                  <div class="col-md-4 col-lg-3 mb-3">
+                    <div class="card border-success h-100">
+                      <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="card-title mb-0">${p.title}</h6>
+                            <span class="badge bg-success price-badge">$${p.price || 0}</span>
+                        </div>
+                        <p class="card-text small text-muted">${p.desc || 'No description'}</p>
+                        <div class="text-center small">
+                            <strong>Qty:</strong> ${p.quantity || 0} | 
+                            <strong>Owner:</strong> ${p.owner?.fullname || 'N/A'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>`;
+            });
+        } catch (error) {
+            document.getElementById("byCategory").innerHTML = 
+                `<div class="col-12"><div class="alert alert-danger">Error loading products: ${error.message}</div></div>`;
+        } finally {
+            document.getElementById('byCategory-loading').style.display = 'none';
+        }
+    }
+
+    // Load categories info
+    async function loadCategories() {
+        try {
+            const query = `
+              query {
+                categories {
+                  id name
+                  products { id }
+                }
+              }`;
+            const { data } = await gql(query);
+            const infoDiv = document.getElementById("categories-info");
+            
+            if (!data.categories || data.categories.length === 0) {
+                infoDiv.innerHTML = '<div class="alert alert-info">No categories found</div>';
+                return;
+            }
+            
+            infoDiv.innerHTML = `
+                <div class="alert alert-info">
+                    <strong>Available Categories:</strong><br>
+                    ${data.categories.map(cat => 
+                        `<span class="badge bg-info me-2 mb-1" style="cursor: pointer;" onclick="document.getElementById('catId').value=${cat.id}; loadByCategory();">
+                            ${cat.id}: ${cat.name || 'Unnamed'} (${cat.products?.length || 0} products)
+                        </span>`
+                    ).join('')}
+                </div>
+            `;
+            
+            // Update statistics
+            document.getElementById('total-categories').textContent = data.categories.length;
+        } catch (error) {
+            document.getElementById("categories-info").innerHTML = 
+                `<div class="alert alert-danger">Error loading categories: ${error.message}</div>`;
+        }
+    }
+
+    // Load statistics
+    async function loadStatistics() {
+        try {
+            const query = `
+              query {
+                products { id }
+                categories { id }
+                users { id }
+              }`;
+            const { data } = await gql(query);
+            
+            document.getElementById('total-products').textContent = data.products?.length || 0;
+            document.getElementById('total-categories').textContent = data.categories?.length || 0;
+            document.getElementById('total-users').textContent = data.users?.length || 0;
+        } catch (error) {
+            console.error('Error loading statistics:', error);
+        }
+    }
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', () => {
+        loadAsc();
+        loadCategories();
+        loadStatistics();
+    });
+</script>
+</body>
+</html>
