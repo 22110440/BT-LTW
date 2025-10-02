@@ -61,16 +61,26 @@ public class DataInitializer implements CommandLineRunner {
         // Create Users
         User admin = new User();
         admin.setFullname("Admin User");
-        admin.setEmail("admin@graphqlshop.com");
+        admin.setEmail("admin@shop.com");
         admin.setPassword("admin123");
         admin.setPhone("0123456789");
+        admin.setRole("ADMIN");
         admin.setCategories(Set.of(electronics, clothing, books));
+
+        User normalUser = new User();
+        normalUser.setFullname("Normal User");
+        normalUser.setEmail("user@shop.com");
+        normalUser.setPassword("user123");
+        normalUser.setPhone("0111222333");
+        normalUser.setRole("USER");
+        normalUser.setCategories(Set.of(electronics));
 
         User seller1 = new User();
         seller1.setFullname("John Seller");
         seller1.setEmail("john@graphqlshop.com");
         seller1.setPassword("john123");
         seller1.setPhone("0987654321");
+        seller1.setRole("USER");
         seller1.setCategories(Set.of(electronics));
 
         User seller2 = new User();
@@ -78,11 +88,33 @@ public class DataInitializer implements CommandLineRunner {
         seller2.setEmail("jane@graphqlshop.com");
         seller2.setPassword("jane123");
         seller2.setPhone("0555666777");
+        seller2.setRole("USER");
         seller2.setCategories(Set.of(clothing, books));
 
+        // Thêm một admin khác để test
+        User admin2 = new User();
+        admin2.setFullname("Super Admin");
+        admin2.setEmail("superadmin@shop.com");
+        admin2.setPassword("super123");
+        admin2.setPhone("0999888777");
+        admin2.setRole("ADMIN");
+        admin2.setCategories(Set.of(electronics, clothing, books));
+
+        // Thêm user demo khác
+        User demoUser = new User();
+        demoUser.setFullname("Demo User");
+        demoUser.setEmail("demo@shop.com");
+        demoUser.setPassword("demo123");
+        demoUser.setPhone("0777666555");
+        demoUser.setRole("USER");
+        demoUser.setCategories(Set.of(clothing));
+
         userRepository.save(admin);
+        userRepository.save(normalUser);
         userRepository.save(seller1);
         userRepository.save(seller2);
+        userRepository.save(admin2);
+        userRepository.save(demoUser);
 
         // Create Products
         Product laptop = new Product();

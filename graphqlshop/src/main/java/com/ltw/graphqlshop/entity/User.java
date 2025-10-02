@@ -3,7 +3,6 @@ package com.ltw.graphqlshop.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -24,6 +23,9 @@ public class User {
 
     private String phone;
 
+    @Column(nullable = false)
+    private String role = "USER"; // USER hoặc ADMIN
+
     @ManyToMany
     @JoinTable(name = "user_categories",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -33,12 +35,13 @@ public class User {
     // Constructors
     public User() {}
 
-    public User(Long id, String fullname, String email, String password, String phone, Set<Category> categories) {
+    public User(Long id, String fullname, String email, String password, String phone, String role, Set<Category> categories) {
         this.id = id;
         this.fullname = fullname;
         this.email = email;
         this.password = password;
         this.phone = phone;
+        this.role = role != null ? role : "USER";
         this.categories = categories != null ? categories : new HashSet<>();
     }
 
@@ -60,4 +63,7 @@ public class User {
 
     public Set<Category> getCategories() { return categories; }
     public void setCategories(Set<Category> categories) { this.categories = categories; }
+
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
 }

@@ -1,6 +1,5 @@
 package com.ltw.graphqlshop.graphql;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.stereotype.Controller;
@@ -23,6 +22,25 @@ public class MutationResolver {
         this.userRepo = userRepo;
     }
 
+    // -------- Authentication --------
+    @MutationMapping
+    public LoginResponse login(@Argument LoginInput input) {
+        try {
+            User user = userRepo.findByEmail(input.email()).orElse(null);
+            if (user == null) {
+                return new LoginResponse(false, "Email không tồn tại!", null);
+            }
+            
+            if (!user.getPassword().equals(input.password())) {
+                return new LoginResponse(false, "Mật khẩu không đúng!", null);
+            }
+            
+            return new LoginResponse(true, "Đăng nhập thành công!", user);
+        } catch (Exception e) {
+            return new LoginResponse(false, "Lỗi hệ thống: " + e.getMessage(), null);
+        }
+    }
+
     // -------- User --------
     @MutationMapping
     public User createUser(@Argument CreateUserInput input) {
@@ -31,6 +49,7 @@ public class MutationResolver {
         u.setEmail(input.email());
         u.setPassword(input.password());
         u.setPhone(input.phone());
+        u.setRole(input.role() != null ? input.role() : "USER");
         u.setCategories(new HashSet<>());
         if (input.categoryIds() != null) {
             u.getCategories().addAll(findCategories(input.categoryIds()));
@@ -45,6 +64,7 @@ public class MutationResolver {
         if (input.email()!=null) u.setEmail(input.email());
         if (input.password()!=null) u.setPassword(input.password());
         if (input.phone()!=null) u.setPhone(input.phone());
+        if (input.role()!=null) u.setRole(input.role());
         if (input.categoryIds()!=null) {
             u.getCategories().clear();
             u.getCategories().addAll(findCategories(input.categoryIds()));
@@ -135,8 +155,10 @@ public class MutationResolver {
     }
 
     // -------- Record inputs (Java 17+) --------
-    public record CreateUserInput(String fullname, String email, String password, String phone, Iterable<Long> categoryIds) {}
-    public record UpdateUserInput(Long id, String fullname, String email, String password, String phone, Iterable<Long> categoryIds) {}
+    public record LoginInput(String email, String password) {}
+    public record LoginResponse(Boolean success, String message, User user) {}
+    public record CreateUserInput(String fullname, String email, String password, String phone, String role, Iterable<Long> categoryIds) {}
+    public record UpdateUserInput(Long id, String fullname, String email, String password, String phone, String role, Iterable<Long> categoryIds) {}
     public record CreateCategoryInput(String name, String images) {}
     public record UpdateCategoryInput(Long id, String name, String images) {}
     public record CreateProductInput(String title, Integer quantity, String desc, java.math.BigDecimal price, Long ownerId, Iterable<Long> categoryIds) {}

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Login - GraphQL Shop</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .result { margin: 20px 0; padding: 10px; border: 1px solid #ccc; }
+        .error { background-color: #ffe6e6; border-color: #ff0000; }
+        .success { background-color: #e6ffe6; border-color: #00ff00; }
+        button { padding: 10px 20px; margin: 5px; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test GraphQL Login</h1>
+        
+        <div>
+            <h3>Test Queries:</h3>
+            <button onclick="testUsers()">📋 Get All Users</button>
+            <button onclick="testCategories()">📂 Get Categories</button>
+            <button onclick="testProducts()">📦 Get Products</button>
+            <br><br>
+            <h4>Test Login:</h4>
+            <button onclick="testLogin('admin@shop.com', 'admin123')">🔐 Admin</button>
+            <button onclick="testLogin('superadmin@shop.com', 'super123')">👑 Super Admin</button>
+            <button onclick="testLogin('user@shop.com', 'user123')">👤 User</button>
+            <button onclick="testLogin('demo@shop.com', 'demo123')">🎮 Demo</button>
+            <button onclick="testLogin('wrong@email.com', 'wrong')">❌ Wrong Login</button>
+        </div>
+        
+        <div id="result" class="result" style="display: none;">
+            <h4>Result:</h4>
+            <pre id="resultContent"></pre>
+        </div>
+    </div>
+
+    <script>
+        const GQL_ENDPOINT = "/graphql";
+        
+        async function gql(query, variables = {}) {
+            try {
+                const res = await fetch(GQL_ENDPOINT, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ query, variables })
+                });
+                const result = await res.json();
+                return result;
+            } catch (error) {
+                console.error("GraphQL request failed:", error);
+                throw error;
+            }
+        }
+        
+        function showResult(data, isError = false) {
+            const resultDiv = document.getElementById('result');
+            const resultContent = document.getElementById('resultContent');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result ' + (isError ? 'error' : 'success');
+            resultContent.textContent = JSON.stringify(data, null, 2);
+        }
+        
+        async function testUsers() {
+            try {
+                const query = `
+                    query {
+                        users {
+                            id
+                            fullname
+                            email
+                            role
+                            phone
+                        }
+                    }
+                `;
+                
+                const result = await gql(query);
+                showResult(result);
+            } catch (error) {
+                showResult({ error: error.message }, true);
+            }
+        }
+        
+        async function testCategories() {
+            try {
+                const query = `
+                    query {
+                        categories {
+                            id
+                            name
+                            images
+                            products { id title }
+                        }
+                    }
+                `;
+                
+                const result = await gql(query);
+                showResult(result);
+            } catch (error) {
+                showResult({ error: error.message }, true);
+            }
+        }
+        
+        async function testProducts() {
+            try {
+                const query = `
+                    query {
+                        products {
+                            id
+                            title
+                            price
+                            quantity
+                            desc
+                            owner { fullname email role }
+                            categories { name }
+                        }
+                    }
+                `;
+                
+                const result = await gql(query);
+                showResult(result);
+            } catch (error) {
+                showResult({ error: error.message }, true);
+            }
+        }
+        
+        async function testLogin(email, password) {
+            try {
+                const query = `
+                    mutation Login($input: LoginInput!) {
+                        login(input: $input) {
+                            success
+                            message
+                            user {
+                                id
+                                fullname
+                                email
+                                role
+                            }
+                        }
+                    }
+                `;
+                
+                const result = await gql(query, {
+                    input: { email, password }
+                });
+                
+                showResult(result);
+            } catch (error) {
+                showResult({ error: error.message }, true);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -3,6 +3,7 @@ type User {
   fullname: String!
   email: String!
   phone: String
+  role: String!
   categories: [Category!]!
 }
 
@@ -42,6 +43,7 @@ input CreateUserInput {
   email: String!
   password: String!
   phone: String
+  role: String
   categoryIds: [ID!]
 }
 
@@ -51,7 +53,19 @@ input UpdateUserInput {
   email: String
   password: String
   phone: String
+  role: String
   categoryIds: [ID!]
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type LoginResponse {
+  success: Boolean!
+  message: String!
+  user: User
 }
 
 input CreateCategoryInput {
@@ -86,6 +100,9 @@ input UpdateProductInput {
 
 # -------- Mutations (CRUD) --------
 type Mutation {
+  # Authentication
+  login(input: LoginInput!): LoginResponse!
+  
   # User
   createUser(input: CreateUserInput!): User!
   updateUser(input: UpdateUserInput!): User!

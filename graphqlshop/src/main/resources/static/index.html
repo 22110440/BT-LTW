@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GraphQL Shop - Chào mừng</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            padding: 40px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            margin: 10px;
+            background: #fff;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛍️ GraphQL Shop</h1>
+        <p>Chào mừng đến với hệ thống quản lý cửa hàng GraphQL</p>
+        
+        <div style="margin: 30px 0;">
+            <a href="login.html" class="btn">🔐 Đăng nhập</a>
+            <a href="test-login.html" class="btn">🧪 Test GraphQL</a>
+        </div>
+        
+        <div style="margin-top: 30px; font-size: 14px; opacity: 0.8;">
+            <p><strong>🔐 Tài khoản demo:</strong></p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left; max-width: 400px; margin: 0 auto;">
+                <div>
+                    <strong>Admin:</strong><br>
+                    • admin@shop.com / admin123<br>
+                    • superadmin@shop.com / super123
+                </div>
+                <div>
+                    <strong>User:</strong><br>
+                    • user@shop.com / user123<br>
+                    • demo@shop.com / demo123
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto redirect to login after 3 seconds if no action
+        setTimeout(() => {
+            if (confirm('Bạn có muốn chuyển đến trang đăng nhập?')) {
+                window.location.href = 'login.html';
+            }
+        }, 3000);
+    </script>
+</body>
+</html>
